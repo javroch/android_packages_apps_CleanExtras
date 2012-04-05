@@ -17,4 +17,13 @@ dangerous and could compromise the security of your system!</string>
     <string name="root_access_summary_adb">Access is enabled for ADB only</string>
     <string name="root_access_summary_all">Access is enabled for Apps and ADB</string>
 
+    <!-- Setting checkbox title for reboot option -->
+    <string name="reboot_option">Reboot option</string>
+    <string name="reboot_option_none">Disabled</string>
+    <string name="reboot_option_button">Button</string>
+    <string name="reboot_option_menu">Menu</string>
+    <string name="reboot_option_summary_none">Removed from Power menu</string>
+    <string name="reboot_option_summary_button">Reboot button available in the Power menu</string>
+    <string name="reboot_option_summary_menu">Advanced reboot menu in the Power menu</string>
+
 </resources>

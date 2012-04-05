@@ -18,17 +18,28 @@ public class CleanSettingsActivity extends PreferenceActivity
 	implements DialogInterface.OnClickListener, DialogInterface.OnDismissListener,
 		OnPreferenceChangeListener {
 
+	/*
+	 * Root Access
+	 */
 	private ListPreference mRootAccess;
-	
     private static final String ROOT_ACCESS_KEY = "root_access";
     private static final String ROOT_ACCESS_PROPERTY = "persist.sys.clean.root";
     private static final String ROOT_ACCESS_DEFAULT = "0";
     private static final String ROOT_SETTINGS_PROPERTY = "ro.clean.root";
+    private Object mSelectedRootValue;
+    
+    /*
+     * Reboot option
+     */
+    private ListPreference mRebootOption;
+    private static final String REBOOT_OPTION_KEY = "reboot_option";
+    private static final String REBOOT_OPTION_PROPERTY = "persist.sys.clean.reboot";
+    private static final String REBOOT_OPTION_DEFAULT = "1";
+    private static final String REBOOT_SETTINGS_PROPERTY = "ro.clean.reboot";
 	
 	private Dialog mOkDialog;
 	private boolean mOkClicked;	
 	private String mCurrentDialog;
-    private Object mSelectedRootValue;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -38,8 +49,21 @@ public class CleanSettingsActivity extends PreferenceActivity
 		
 		mRootAccess = (ListPreference) findPreference(ROOT_ACCESS_KEY);
 		mRootAccess.setOnPreferenceChangeListener(this);
+
+        mRebootOption = (ListPreference) findPreference(REBOOT_OPTION_KEY);
+        mRebootOption.setOnPreferenceChangeListener(this);
 		
 		removeRootOptions();
+		removeRebootOptions();
+	}
+
+	private void removeRebootOptions() {
+        String rebootSettings = SystemProperties.get(REBOOT_SETTINGS_PROPERTY, "");
+        if (!"1".equals(rebootSettings)) {
+            if (mRebootOption != null) {
+                getPreferenceScreen().removePreference(mRebootOption);
+            }
+        }
 	}
 
 	private void removeRootOptions() {
@@ -54,7 +78,14 @@ public class CleanSettingsActivity extends PreferenceActivity
 	public void onResume() {
 		super.onResume();
 		
+		updateRebootOptions();
 		updateRootOptions();
+	}
+
+	private void updateRebootOptions() {
+        String value = SystemProperties.get(REBOOT_OPTION_PROPERTY, REBOOT_OPTION_DEFAULT);
+        mRebootOption.setValue(value);
+        mRebootOption.setSummary(getResources().getStringArray(R.array.reboot_option_summaries)[Integer.valueOf(value)]);
 	}
 
 	private void updateRootOptions() {
@@ -85,9 +116,17 @@ public class CleanSettingsActivity extends PreferenceActivity
                 writeRootOptions(newValue);
             }
             return true;
+		} else if (preference == mRebootOption) {
+			writeRebootOptions(newValue);
+			return true;
 		}
 		
 		return false;
+	}
+
+	private void writeRebootOptions(Object newValue) {
+        SystemProperties.set(REBOOT_OPTION_PROPERTY, newValue.toString());
+        updateRebootOptions();
 	}
 
 	private void writeRootOptions(Object newValue) {
