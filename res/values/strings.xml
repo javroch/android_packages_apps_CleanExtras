@@ -23,12 +23,12 @@ dangerous and could compromise the security of your system!</string>
     <string name="reboot_option_button">Button</string>
     <string name="reboot_option_menu">Menu</string>
     <string name="reboot_option_summary_none">Removed from the Power menu</string>
-    <string name="reboot_option_summary_button">Reboot button available in the Power menu</string>
-    <string name="reboot_option_summary_menu">Advanced reboot menu in the Power menu</string>
+    <string name="reboot_option_summary_button">Option in the Power menu</string>
+    <string name="reboot_option_summary_menu">Advanced menu in the Power menu</string>
 
     <!-- Setting checkbox title for screenshot option -->
     <string name="screenshot_option">Screenshot option</string>
     <string name="screenshot_option_summary_unchecked">Removed from the Power menu</string>
-    <string name="screenshot_option_summary_checked">Screenshot button available in the Power menu</string>
+    <string name="screenshot_option_summary_checked">Option in the Power menu</string>
 
 </resources>
