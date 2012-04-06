@@ -14,5 +14,10 @@
         android:persistent="false"
         android:entries="@array/reboot_option_entries"
         android:entryValues="@array/reboot_option_values" />
+
+    <CheckBoxPreference
+        android:key="screenshot_option"
+        android:title="@string/screenshot_option"
+        android:persistent="false" />
     
 </PreferenceScreen>

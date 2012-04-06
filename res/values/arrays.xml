@@ -41,5 +41,11 @@
         <item>@string/reboot_option_summary_button</item>
         <item>@string/reboot_option_summary_menu</item>
     </string-array>
+    
+    <!-- Arrays for the screenshot option capability -->
+    <string-array name="screenshot_option_summaries">
+        <item>@string/screenshot_option_summary_unchecked</item>
+        <item>@string/screenshot_option_summary_checked</item>
+    </string-array>
         
 </resources>

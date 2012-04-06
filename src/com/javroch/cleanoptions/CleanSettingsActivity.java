@@ -8,8 +8,10 @@ import android.content.DialogInterface;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.SystemProperties;
+import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
+import android.preference.PreferenceScreen;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.PreferenceActivity;
 import android.provider.Settings;
@@ -36,6 +38,15 @@ public class CleanSettingsActivity extends PreferenceActivity
     private static final String REBOOT_OPTION_PROPERTY = "persist.sys.clean.reboot";
     private static final String REBOOT_OPTION_DEFAULT = "1";
     private static final String REBOOT_SETTINGS_PROPERTY = "ro.clean.reboot";
+    
+    /*
+     * Screenshot option
+     */
+    private CheckBoxPreference mScreenshotOption;
+    private static final String SCREENSHOT_OPTION_KEY = "screenshot_option";
+    private static final String SCREENSHOT_OPTION_DEFAULT = "true";
+    private static final String SCREENSHOT_OPTION_PROPERTY = "persist.sys.clean.screenshot";
+    private static final String SCREENSHOT_SETTINGS_PROPERTY = "ro.clean.screenshot";
 	
 	private Dialog mOkDialog;
 	private boolean mOkClicked;	
@@ -52,9 +63,21 @@ public class CleanSettingsActivity extends PreferenceActivity
 
         mRebootOption = (ListPreference) findPreference(REBOOT_OPTION_KEY);
         mRebootOption.setOnPreferenceChangeListener(this);
-		
+
+        mScreenshotOption = (CheckBoxPreference) findPreference(SCREENSHOT_OPTION_KEY);
+
 		removeRootOptions();
 		removeRebootOptions();
+		removeScreenshotOptions();
+	}
+
+	private void removeScreenshotOptions() {
+        String screenshotSettings = SystemProperties.get(SCREENSHOT_SETTINGS_PROPERTY, "");
+        if (!"1".equals(screenshotSettings)) {
+            if (mScreenshotOption != null) {
+                getPreferenceScreen().removePreference(mScreenshotOption);
+            }
+        }
 	}
 
 	private void removeRebootOptions() {
@@ -78,8 +101,15 @@ public class CleanSettingsActivity extends PreferenceActivity
 	public void onResume() {
 		super.onResume();
 		
-		updateRebootOptions();
 		updateRootOptions();
+		updateRebootOptions();
+		updateScreenshotOptions();
+	}
+
+	private void updateScreenshotOptions() {
+        Boolean value = Boolean.parseBoolean(SystemProperties.get(SCREENSHOT_OPTION_PROPERTY, SCREENSHOT_OPTION_DEFAULT));
+        mScreenshotOption.setChecked(value);
+        mScreenshotOption.setSummary(getResources().getStringArray(R.array.screenshot_option_summaries)[value ? 1 : 0]);
 	}
 
 	private void updateRebootOptions() {
@@ -122,6 +152,20 @@ public class CleanSettingsActivity extends PreferenceActivity
 		}
 		
 		return false;
+	}
+	
+	@Override
+    public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, Preference preference) {
+		if (preference == mScreenshotOption) {
+			writeScreenshotOptions();
+		}
+		
+		return false;
+	}
+
+	private void writeScreenshotOptions() {
+        SystemProperties.set(SCREENSHOT_OPTION_PROPERTY, mScreenshotOption.isChecked() ? "true" : "false");
+        updateScreenshotOptions();
 	}
 
 	private void writeRebootOptions(Object newValue) {
