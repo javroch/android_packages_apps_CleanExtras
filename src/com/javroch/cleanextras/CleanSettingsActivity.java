@@ -1,6 +1,6 @@
-package com.javroch.cleanoptions;
+package com.javroch.cleanextras;
 
-import com.javroch.cleanoptions.R;
+import com.javroch.cleanextras.R;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -56,7 +56,7 @@ public class CleanSettingsActivity extends PreferenceActivity
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
-		addPreferencesFromResource(R.xml.clean_options);
+		addPreferencesFromResource(R.xml.clean_extras);
 		
 		mRootAccess = (ListPreference) findPreference(ROOT_ACCESS_KEY);
 		mRootAccess.setOnPreferenceChangeListener(this);
