@@ -20,4 +20,9 @@
         android:title="@string/screenshot_option"
         android:persistent="false" />
     
+    <CheckBoxPreference
+        android:key="status_bar_battery"
+        android:title="@string/status_bar_battery"
+        android:persistent="false" />
+    
 </PreferenceScreen>

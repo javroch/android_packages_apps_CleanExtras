@@ -34,19 +34,25 @@ public class CleanSettingsActivity extends PreferenceActivity
      * Reboot option
      */
     private ListPreference mRebootOption;
-    private static final String REBOOT_OPTION_KEY = "reboot_option";
-    private static final String REBOOT_OPTION_PROPERTY = "persist.sys.clean.reboot";
-    private static final String REBOOT_OPTION_DEFAULT = "1";
+    private static final String REBOOT_OPTION_KEY = Settings.System.REBOOT_OPTION;
+    private static final int REBOOT_OPTION_DEFAULT = 1;
     private static final String REBOOT_SETTINGS_PROPERTY = "ro.clean.reboot";
     
     /*
      * Screenshot option
      */
     private CheckBoxPreference mScreenshotOption;
-    private static final String SCREENSHOT_OPTION_KEY = "screenshot_option";
-    private static final String SCREENSHOT_OPTION_DEFAULT = "true";
-    private static final String SCREENSHOT_OPTION_PROPERTY = "persist.sys.clean.screenshot";
+    private static final String SCREENSHOT_OPTION_KEY = Settings.System.SCREENSHOT_OPTION;
+    private static final int SCREENSHOT_OPTION_DEFAULT = 1;
     private static final String SCREENSHOT_SETTINGS_PROPERTY = "ro.clean.screenshot";
+    
+    /*
+     * Battery percentage option
+     */
+    private CheckBoxPreference mStatusBarBattery;
+    private static final String STATUS_BAR_BATTERY_KEY = Settings.System.STATUS_BAR_BATTERY;
+    private static final int STATUS_BAR_BATTERY_DEFAULT = 1;
+    private static final String STATUS_BAR_BATTERY_SETTINGS_PROPERTY = "ro.clean.batt_percent";
 	
 	private Dialog mOkDialog;
 	private boolean mOkClicked;	
@@ -65,10 +71,22 @@ public class CleanSettingsActivity extends PreferenceActivity
         mRebootOption.setOnPreferenceChangeListener(this);
 
         mScreenshotOption = (CheckBoxPreference) findPreference(SCREENSHOT_OPTION_KEY);
+        
+        mStatusBarBattery = (CheckBoxPreference) findPreference(STATUS_BAR_BATTERY_KEY);
 
 		removeRootOptions();
 		removeRebootOptions();
 		removeScreenshotOptions();
+		removeBatteryOptions();
+	}
+	
+	private void removeBatteryOptions() {
+		String batterySettings = SystemProperties.get(STATUS_BAR_BATTERY_SETTINGS_PROPERTY, "");
+		if (!"1".equals(batterySettings)) {
+			if (mStatusBarBattery != null) {
+				getPreferenceScreen().removePreference(mStatusBarBattery);
+			}
+		}
 	}
 
 	private void removeScreenshotOptions() {
@@ -104,22 +122,29 @@ public class CleanSettingsActivity extends PreferenceActivity
 		updateRootOptions();
 		updateRebootOptions();
 		updateScreenshotOptions();
+		updateBatteryOptions();
+	}
+	
+	private void updateBatteryOptions() {
+		Boolean value = Settings.System.getInt(getContentResolver(), STATUS_BAR_BATTERY_KEY, STATUS_BAR_BATTERY_DEFAULT) == 1;
+		mStatusBarBattery.setChecked(value);
+		mStatusBarBattery.setSummary(getResources().getStringArray(R.array.status_bar_battery_summaries)[value ? 1 : 0]);
 	}
 
 	private void updateScreenshotOptions() {
-        Boolean value = Boolean.parseBoolean(SystemProperties.get(SCREENSHOT_OPTION_PROPERTY, SCREENSHOT_OPTION_DEFAULT));
+		Boolean value = Settings.System.getInt(getContentResolver(), SCREENSHOT_OPTION_KEY, SCREENSHOT_OPTION_DEFAULT) == 1;
         mScreenshotOption.setChecked(value);
         mScreenshotOption.setSummary(getResources().getStringArray(R.array.screenshot_option_summaries)[value ? 1 : 0]);
 	}
 
 	private void updateRebootOptions() {
-        String value = SystemProperties.get(REBOOT_OPTION_PROPERTY, REBOOT_OPTION_DEFAULT);
-        mRebootOption.setValue(value);
-        mRebootOption.setSummary(getResources().getStringArray(R.array.reboot_option_summaries)[Integer.valueOf(value)]);
+        int value = Settings.System.getInt(getContentResolver(), REBOOT_OPTION_KEY, REBOOT_OPTION_DEFAULT);
+        mRebootOption.setValue(String.valueOf(value));
+        mRebootOption.setSummary(getResources().getStringArray(R.array.reboot_option_summaries)[value]);
 	}
 
 	private void updateRootOptions() {
-        String value = SystemProperties.get(ROOT_ACCESS_PROPERTY, ROOT_ACCESS_DEFAULT);
+		String value = SystemProperties.get(ROOT_ACCESS_PROPERTY, ROOT_ACCESS_DEFAULT);
         mRootAccess.setValue(value);
         mRootAccess.setSummary(getResources().getStringArray(R.array.root_access_summaries)[Integer.valueOf(value)]);
 	}
@@ -158,25 +183,32 @@ public class CleanSettingsActivity extends PreferenceActivity
     public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, Preference preference) {
 		if (preference == mScreenshotOption) {
 			writeScreenshotOptions();
+		} else if (preference == mStatusBarBattery) {
+			writeBatteryOptions();
 		}
 		
 		return false;
 	}
+	
+	private void writeBatteryOptions() {
+		Settings.System.putInt(getContentResolver(), STATUS_BAR_BATTERY_KEY, mStatusBarBattery.isChecked() ? 1 : 0);
+		updateBatteryOptions();
+	}
 
 	private void writeScreenshotOptions() {
-        SystemProperties.set(SCREENSHOT_OPTION_PROPERTY, mScreenshotOption.isChecked() ? "true" : "false");
+		Settings.System.putInt(getContentResolver(), SCREENSHOT_OPTION_KEY, mScreenshotOption.isChecked() ? 1 : 0);
         updateScreenshotOptions();
 	}
 
 	private void writeRebootOptions(Object newValue) {
-        SystemProperties.set(REBOOT_OPTION_PROPERTY, newValue.toString());
+		Settings.System.putInt(getContentResolver(), REBOOT_OPTION_KEY, Integer.valueOf(newValue.toString()));
         updateRebootOptions();
 	}
 
 	private void writeRootOptions(Object newValue) {
-        String oldValue = SystemProperties.get(ROOT_ACCESS_PROPERTY, ROOT_ACCESS_DEFAULT);
-        SystemProperties.set(ROOT_ACCESS_PROPERTY, newValue.toString());
-        if (Integer.valueOf(newValue.toString()) < 2 && !oldValue.equals(newValue)
+		String oldValue = SystemProperties.get(ROOT_ACCESS_PROPERTY, ROOT_ACCESS_DEFAULT);
+		SystemProperties.set(ROOT_ACCESS_PROPERTY, newValue.toString());
+        if (Integer.valueOf(newValue.toString()) < 2 && !oldValue.equals(newValue.toString())
             && "1".equals(SystemProperties.get("service.adb.root", "0"))) {
 
             SystemProperties.set("service.adb.root", "0");
