@@ -53,6 +53,14 @@ public class CleanSettingsActivity extends PreferenceActivity
     private static final String STATUS_BAR_BATTERY_KEY = Settings.System.STATUS_BAR_BATTERY;
     private static final int STATUS_BAR_BATTERY_DEFAULT = 1;
     private static final String STATUS_BAR_BATTERY_SETTINGS_PROPERTY = "ro.clean.batt_percent";
+    
+    /*
+     * Launcher screen count option
+     */
+    private ListPreference mLauncherScreenCount;
+    private static final String LAUNCHER_SCREEN_COUNT_KEY = Settings.System.LAUNCHER_SCREEN_COUNT;
+    private static final int LAUNCHER_SCREEN_COUNT_DEFAULT = 5;
+    private static final String LAUNCHER_SCREEN_COUNT_PROPERTY = "ro.clean.launcher_screens";
 	
 	private Dialog mOkDialog;
 	private boolean mOkClicked;	
@@ -73,11 +81,24 @@ public class CleanSettingsActivity extends PreferenceActivity
         mScreenshotOption = (CheckBoxPreference) findPreference(SCREENSHOT_OPTION_KEY);
         
         mStatusBarBattery = (CheckBoxPreference) findPreference(STATUS_BAR_BATTERY_KEY);
+        
+        mLauncherScreenCount = (ListPreference) findPreference(LAUNCHER_SCREEN_COUNT_KEY);
+        mLauncherScreenCount.setOnPreferenceChangeListener(this);
 
 		removeRootOptions();
 		removeRebootOptions();
 		removeScreenshotOptions();
 		removeBatteryOptions();
+		removeLauncherScreenOptions();
+	}
+	
+	private void removeLauncherScreenOptions() {
+		String launcherScreenSettings = SystemProperties.get(LAUNCHER_SCREEN_COUNT_PROPERTY, "");
+		if (!"1".equals(launcherScreenSettings)) {
+			if (mLauncherScreenCount != null) {
+				getPreferenceScreen().removePreference(mLauncherScreenCount);
+			}
+		}
 	}
 	
 	private void removeBatteryOptions() {
@@ -123,6 +144,14 @@ public class CleanSettingsActivity extends PreferenceActivity
 		updateRebootOptions();
 		updateScreenshotOptions();
 		updateBatteryOptions();
+		updateLauncherScreenOptions();
+	}
+	
+	private void updateLauncherScreenOptions() {
+		int value = Settings.System.getInt(getContentResolver(), LAUNCHER_SCREEN_COUNT_KEY, LAUNCHER_SCREEN_COUNT_DEFAULT);
+		String strValue = String.valueOf(value);
+		mLauncherScreenCount.setValue(strValue);
+		mLauncherScreenCount.setSummary(getResources().getStringArray(R.array.launcher_screen_count_summaries)[mLauncherScreenCount.findIndexOfValue(strValue)]);
 	}
 	
 	private void updateBatteryOptions() {
@@ -174,6 +203,9 @@ public class CleanSettingsActivity extends PreferenceActivity
 		} else if (preference == mRebootOption) {
 			writeRebootOptions(newValue);
 			return true;
+		} else if (preference == mLauncherScreenCount) {
+			writeLauncherScreenOptions(newValue);
+			return true;
 		}
 		
 		return false;
@@ -188,6 +220,11 @@ public class CleanSettingsActivity extends PreferenceActivity
 		}
 		
 		return false;
+	}
+	
+	private void writeLauncherScreenOptions(Object newValue) {
+		Settings.System.putInt(getContentResolver(), LAUNCHER_SCREEN_COUNT_KEY, Integer.valueOf(newValue.toString()));
+		updateLauncherScreenOptions();
 	}
 	
 	private void writeBatteryOptions() {

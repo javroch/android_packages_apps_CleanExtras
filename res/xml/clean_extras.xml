@@ -24,5 +24,12 @@
         android:key="status_bar_battery"
         android:title="@string/status_bar_battery"
         android:persistent="false" />
+
+    <ListPreference
+        android:key="launcher_screen_count"
+        android:title="@string/launcher_screen_count"
+        android:persistent="false"
+        android:entries="@array/launcher_screen_count_entries"
+        android:entryValues="@array/launcher_screen_count_entries" />
     
 </PreferenceScreen>

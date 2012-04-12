@@ -32,8 +32,15 @@ dangerous and could compromise the security of your system!</string>
     <string name="screenshot_option_summary_checked">Option in the Power menu</string>
     
     <!--  Setting checkbox title for status bar battery -->
-    <string name="status_bar_battery">Battery Percentage</string>
+    <string name="status_bar_battery">Battery percentage</string>
     <string name="status_bar_battery_summary_unchecked">Removed from the Status bar</string>
     <string name="status_bar_battery_summary_checked">Visible in the Status bar</string>
+    
+    <!--  Setting checkbox title for the number of home screens -->
+    <string name="launcher_screen_count">Number of home screens</string>
+    <string name="launcher_screen_count_summary_3">Showing 3 home screens</string>
+    <string name="launcher_screen_count_summary_5">Showing 5 home screens</string>
+    <string name="launcher_screen_count_summary_7">Showing 7 home screens</string>
+    <string name="launcher_screen_count_summary_9">Showing 9 home screens</string>
 
 </resources>
