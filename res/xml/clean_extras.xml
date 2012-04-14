@@ -52,6 +52,11 @@
 	        android:key="airplane_mode_option"
 	        android:title="@string/airplane_mode_option"
 	        android:persistent="false" />
+	    
+	    <CheckBoxPreference
+	        android:key="silent_mode_option"
+	        android:title="@string/silent_mode_option"
+	        android:persistent="false" />
     
     </PreferenceCategory>
     

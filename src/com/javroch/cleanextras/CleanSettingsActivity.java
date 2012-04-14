@@ -32,12 +32,20 @@ public class CleanSettingsActivity extends PreferenceActivity
     private Object mSelectedRootValue;
     
     /*
-     * Airplane mode options
+     * Airplane mode option
      */
     private CheckBoxPreference mAirplaneModeOption;
     private static final String AIRPLANE_MODE_OPTION_KEY = Settings.System.AIRPLANE_MODE_OPTION;
     private static final int AIRPLANE_MODE_OPTION_DEFAULT = 1;
     private static final String AIRPLANE_MODE_SETTINGS_PROPERTY = "ro.clean.airplane_mode";
+    
+    /*
+     * Silent mode option
+     */
+    private CheckBoxPreference mSilentModeOption;
+    private static final String SILENT_MODE_OPTION_KEY = Settings.System.SILENT_MODE_OPTION;
+    private static final int SILENT_MODE_OPTION_DEFAULT = 1;
+    private static final String SILENT_MODE_SETTINGS_PROPERTY = "ro.clean.silent_mode";
     
     /*
      * Reboot option
@@ -103,6 +111,8 @@ public class CleanSettingsActivity extends PreferenceActivity
         
         mAirplaneModeOption = (CheckBoxPreference) findPreference(AIRPLANE_MODE_OPTION_KEY);
         
+        mSilentModeOption = (CheckBoxPreference) findPreference(SILENT_MODE_OPTION_KEY);
+        
         mStatusBarBattery = (CheckBoxPreference) findPreference(STATUS_BAR_BATTERY_KEY);
         
         mLauncherScreenCount = (ListPreference) findPreference(LAUNCHER_SCREEN_COUNT_KEY);
@@ -112,6 +122,7 @@ public class CleanSettingsActivity extends PreferenceActivity
 		removeRebootOptions();
 		removeScreenshotOptions();
 		removeAirplaneModeOptions();
+		removeSilentModeOptions();
 		removeBatteryOptions();
 		removeLauncherScreenOptions();
 		
@@ -166,6 +177,15 @@ public class CleanSettingsActivity extends PreferenceActivity
             }
         }
 	}
+	
+	private void removeSilentModeOptions() {
+		String silentModeSettings = SystemProperties.get(SILENT_MODE_SETTINGS_PROPERTY, "");
+		if (!"1".equals(silentModeSettings)) {
+			if (mSilentModeOption != null) {
+				mPowerMenuCategory.removePreference(mSilentModeOption);
+			}
+		}
+	}
 
 	private void removeRebootOptions() {
         String rebootSettings = SystemProperties.get(REBOOT_SETTINGS_PROPERTY, "");
@@ -193,6 +213,7 @@ public class CleanSettingsActivity extends PreferenceActivity
 		updateRebootOptions();
 		updateScreenshotOptions();
 		updateAirplaneModeOptions();
+		updateSilentModeOptions();
 		updateBatteryOptions();
 		updateLauncherScreenOptions();
 	}
@@ -220,6 +241,12 @@ public class CleanSettingsActivity extends PreferenceActivity
 		Boolean value = Settings.System.getInt(getContentResolver(), AIRPLANE_MODE_OPTION_KEY, AIRPLANE_MODE_OPTION_DEFAULT) == 1;
 		mAirplaneModeOption.setChecked(value);
 		mAirplaneModeOption.setSummary(getResources().getStringArray(R.array.airplane_mode_option_summaries)[value ? 1 : 0]);
+	}
+	
+	private void updateSilentModeOptions() {
+		Boolean value = Settings.System.getInt(getContentResolver(), SILENT_MODE_OPTION_KEY, SILENT_MODE_OPTION_DEFAULT) == 1;
+		mSilentModeOption.setChecked(value);
+		mSilentModeOption.setSummary(getResources().getStringArray(R.array.silent_mode_option_summaries)[value ? 1 : 0]);
 	}
 
 	private void updateRebootOptions() {
@@ -273,6 +300,8 @@ public class CleanSettingsActivity extends PreferenceActivity
 			writeScreenshotOptions();
 		} else if (preference == mAirplaneModeOption) {
 			writeAirplaneModeOptions();
+		} else if (preference == mSilentModeOption) {
+			writeSilentModeOptions();
 		} else if (preference == mStatusBarBattery) {
 			writeBatteryOptions();
 		}
@@ -298,6 +327,11 @@ public class CleanSettingsActivity extends PreferenceActivity
 	private void writeAirplaneModeOptions() {
 		Settings.System.putInt(getContentResolver(), AIRPLANE_MODE_OPTION_KEY, mAirplaneModeOption.isChecked() ? 1 : 0);
 		updateAirplaneModeOptions();
+	}
+	
+	private void writeSilentModeOptions() {
+		Settings.System.putInt(getContentResolver(), SILENT_MODE_OPTION_KEY, mSilentModeOption.isChecked() ? 1 : 0);
+		updateSilentModeOptions();
 	}
 
 	private void writeRebootOptions(Object newValue) {

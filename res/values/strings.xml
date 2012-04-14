@@ -41,6 +41,11 @@ dangerous and could compromise the security of your system!</string>
     <string name="airplane_mode_option_summary_unchecked">Removed from the Power menu</string>
     <string name="airplane_mode_option_summary_checked">Option in the Power menu</string>
     
+    <!-- Setting checkbox title for silent mode option -->
+    <string name="silent_mode_option">Silent mode option</string>
+    <string name="silent_mode_option_summary_unchecked">Removed from the Power menu</string>
+    <string name="silent_mode_option_summary_checked">Option in the Power menu</string>
+    
     <!--  Setting checkbox title for status bar battery -->
     <string name="status_bar_battery">Battery percentage</string>
     <string name="status_bar_battery_summary_unchecked">Removed from the Status bar</string>
