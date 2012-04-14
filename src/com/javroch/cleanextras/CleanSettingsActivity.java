@@ -11,6 +11,7 @@ import android.os.SystemProperties;
 import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
+import android.preference.PreferenceCategory;
 import android.preference.PreferenceScreen;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.PreferenceActivity;
@@ -29,6 +30,14 @@ public class CleanSettingsActivity extends PreferenceActivity
     private static final String ROOT_ACCESS_DEFAULT = "0";
     private static final String ROOT_SETTINGS_PROPERTY = "ro.clean.root";
     private Object mSelectedRootValue;
+    
+    /*
+     * Airplane mode options
+     */
+    private CheckBoxPreference mAirplaneModeOption;
+    private static final String AIRPLANE_MODE_OPTION_KEY = Settings.System.AIRPLANE_MODE_OPTION;
+    private static final int AIRPLANE_MODE_OPTION_DEFAULT = 1;
+    private static final String AIRPLANE_MODE_SETTINGS_PROPERTY = "ro.clean.airplane_mode";
     
     /*
      * Reboot option
@@ -66,11 +75,23 @@ public class CleanSettingsActivity extends PreferenceActivity
 	private boolean mOkClicked;	
 	private String mCurrentDialog;
 	
+	private static final String SYSTEM_CATEGORY_KEY = "system_category";
+	private static final String USER_INTERFACE_CATEGORY_KEY = "user_interface_category";
+	private static final String POWER_MENU_CATEGORY_KEY = "power_menu_category";
+	
+	private PreferenceCategory mSystemCategory;
+	private PreferenceCategory mUserInterfaceCategory;
+	private PreferenceCategory mPowerMenuCategory;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
 		addPreferencesFromResource(R.xml.clean_extras);
+		
+		mSystemCategory = (PreferenceCategory) findPreference(SYSTEM_CATEGORY_KEY);
+		mUserInterfaceCategory = (PreferenceCategory) findPreference(USER_INTERFACE_CATEGORY_KEY);
+		mPowerMenuCategory = (PreferenceCategory) findPreference(POWER_MENU_CATEGORY_KEY);
 		
 		mRootAccess = (ListPreference) findPreference(ROOT_ACCESS_KEY);
 		mRootAccess.setOnPreferenceChangeListener(this);
@@ -80,6 +101,8 @@ public class CleanSettingsActivity extends PreferenceActivity
 
         mScreenshotOption = (CheckBoxPreference) findPreference(SCREENSHOT_OPTION_KEY);
         
+        mAirplaneModeOption = (CheckBoxPreference) findPreference(AIRPLANE_MODE_OPTION_KEY);
+        
         mStatusBarBattery = (CheckBoxPreference) findPreference(STATUS_BAR_BATTERY_KEY);
         
         mLauncherScreenCount = (ListPreference) findPreference(LAUNCHER_SCREEN_COUNT_KEY);
@@ -88,15 +111,31 @@ public class CleanSettingsActivity extends PreferenceActivity
 		removeRootOptions();
 		removeRebootOptions();
 		removeScreenshotOptions();
+		removeAirplaneModeOptions();
 		removeBatteryOptions();
 		removeLauncherScreenOptions();
+		
+		removeEmptyCategories();
+	}
+	
+	private void removeEmptyCategories() {
+		PreferenceScreen screen = getPreferenceScreen();
+		
+		if (mSystemCategory.getPreferenceCount() == 0)
+			screen.removePreference(mSystemCategory);
+		
+		if (mUserInterfaceCategory.getPreferenceCount() == 0)
+			screen.removePreference(mUserInterfaceCategory);
+		
+		if (mPowerMenuCategory.getPreferenceCount() == 0)
+			screen.removePreference(mPowerMenuCategory);
 	}
 	
 	private void removeLauncherScreenOptions() {
 		String launcherScreenSettings = SystemProperties.get(LAUNCHER_SCREEN_COUNT_PROPERTY, "");
 		if (!"1".equals(launcherScreenSettings)) {
 			if (mLauncherScreenCount != null) {
-				getPreferenceScreen().removePreference(mLauncherScreenCount);
+				mUserInterfaceCategory.removePreference(mLauncherScreenCount);
 			}
 		}
 	}
@@ -105,7 +144,7 @@ public class CleanSettingsActivity extends PreferenceActivity
 		String batterySettings = SystemProperties.get(STATUS_BAR_BATTERY_SETTINGS_PROPERTY, "");
 		if (!"1".equals(batterySettings)) {
 			if (mStatusBarBattery != null) {
-				getPreferenceScreen().removePreference(mStatusBarBattery);
+				mUserInterfaceCategory.removePreference(mStatusBarBattery);
 			}
 		}
 	}
@@ -114,7 +153,16 @@ public class CleanSettingsActivity extends PreferenceActivity
         String screenshotSettings = SystemProperties.get(SCREENSHOT_SETTINGS_PROPERTY, "");
         if (!"1".equals(screenshotSettings)) {
             if (mScreenshotOption != null) {
-                getPreferenceScreen().removePreference(mScreenshotOption);
+                mPowerMenuCategory.removePreference(mScreenshotOption);
+            }
+        }
+	}
+
+	private void removeAirplaneModeOptions() {
+        String airplaneModeSettings = SystemProperties.get(AIRPLANE_MODE_SETTINGS_PROPERTY, "");
+        if (!"1".equals(airplaneModeSettings)) {
+            if (mAirplaneModeOption != null) {
+            	mPowerMenuCategory.removePreference(mAirplaneModeOption);
             }
         }
 	}
@@ -123,7 +171,7 @@ public class CleanSettingsActivity extends PreferenceActivity
         String rebootSettings = SystemProperties.get(REBOOT_SETTINGS_PROPERTY, "");
         if (!"1".equals(rebootSettings)) {
             if (mRebootOption != null) {
-                getPreferenceScreen().removePreference(mRebootOption);
+            	mPowerMenuCategory.removePreference(mRebootOption);
             }
         }
 	}
@@ -131,8 +179,9 @@ public class CleanSettingsActivity extends PreferenceActivity
 	private void removeRootOptions() {
 		String rootSettings = SystemProperties.get(ROOT_SETTINGS_PROPERTY, "");
 		if (!Build.IS_DEBUGGABLE || "eng".equals(Build.TYPE) || !"1".equals(rootSettings)) {
-			if (mRootAccess != null)
-				getPreferenceScreen().removePreference(mRootAccess);
+			if (mRootAccess != null) {
+				mSystemCategory.removePreference(mRootAccess);
+			}
 		}
 	}
 	
@@ -143,6 +192,7 @@ public class CleanSettingsActivity extends PreferenceActivity
 		updateRootOptions();
 		updateRebootOptions();
 		updateScreenshotOptions();
+		updateAirplaneModeOptions();
 		updateBatteryOptions();
 		updateLauncherScreenOptions();
 	}
@@ -164,6 +214,12 @@ public class CleanSettingsActivity extends PreferenceActivity
 		Boolean value = Settings.System.getInt(getContentResolver(), SCREENSHOT_OPTION_KEY, SCREENSHOT_OPTION_DEFAULT) == 1;
         mScreenshotOption.setChecked(value);
         mScreenshotOption.setSummary(getResources().getStringArray(R.array.screenshot_option_summaries)[value ? 1 : 0]);
+	}
+	
+	private void updateAirplaneModeOptions() {
+		Boolean value = Settings.System.getInt(getContentResolver(), AIRPLANE_MODE_OPTION_KEY, AIRPLANE_MODE_OPTION_DEFAULT) == 1;
+		mAirplaneModeOption.setChecked(value);
+		mAirplaneModeOption.setSummary(getResources().getStringArray(R.array.airplane_mode_option_summaries)[value ? 1 : 0]);
 	}
 
 	private void updateRebootOptions() {
@@ -215,6 +271,8 @@ public class CleanSettingsActivity extends PreferenceActivity
     public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, Preference preference) {
 		if (preference == mScreenshotOption) {
 			writeScreenshotOptions();
+		} else if (preference == mAirplaneModeOption) {
+			writeAirplaneModeOptions();
 		} else if (preference == mStatusBarBattery) {
 			writeBatteryOptions();
 		}
@@ -235,6 +293,11 @@ public class CleanSettingsActivity extends PreferenceActivity
 	private void writeScreenshotOptions() {
 		Settings.System.putInt(getContentResolver(), SCREENSHOT_OPTION_KEY, mScreenshotOption.isChecked() ? 1 : 0);
         updateScreenshotOptions();
+	}
+	
+	private void writeAirplaneModeOptions() {
+		Settings.System.putInt(getContentResolver(), AIRPLANE_MODE_OPTION_KEY, mAirplaneModeOption.isChecked() ? 1 : 0);
+		updateAirplaneModeOptions();
 	}
 
 	private void writeRebootOptions(Object newValue) {

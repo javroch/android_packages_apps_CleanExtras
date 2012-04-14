@@ -48,6 +48,12 @@
         <item>@string/screenshot_option_summary_checked</item>
     </string-array>
     
+    <!-- Arrays for the airplane mode option capability -->
+    <string-array name="airplane_mode_option_summaries">
+        <item>@string/airplane_mode_option_summary_unchecked</item>
+        <item>@string/airplane_mode_option_summary_checked</item>
+    </string-array>
+    
     <!-- Arrays for the status bar battery capability -->
     <string-array name="status_bar_battery_summaries">
         <item>@string/status_bar_battery_summary_unchecked</item>
