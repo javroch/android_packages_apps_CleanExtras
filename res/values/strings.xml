@@ -53,9 +53,16 @@ dangerous and could compromise the security of your system!</string>
     
     <!--  Setting checkbox title for the number of home screens -->
     <string name="launcher_screen_count">Number of home screens</string>
+    <string name="launcher_screen_count_summary_1">Showing 1 home screen</string>
+    <string name="launcher_screen_count_summary_2">Showing 2 home screens</string>
     <string name="launcher_screen_count_summary_3">Showing 3 home screens</string>
+    <string name="launcher_screen_count_summary_4">Showing 4 home screens</string>
     <string name="launcher_screen_count_summary_5">Showing 5 home screens</string>
+    <string name="launcher_screen_count_summary_6">Showing 6 home screens</string>
     <string name="launcher_screen_count_summary_7">Showing 7 home screens</string>
+    <string name="launcher_screen_count_summary_8">Showing 8 home screens</string>
     <string name="launcher_screen_count_summary_9">Showing 9 home screens</string>
+    <string name="launcher_screen_count_warning_message">In order to update your Launcher screens, Launcher2 must be restarted.</string>
+    <string name="launcher_screen_count_warning_title">Update Launcher Screens?</string>
 
 </resources>

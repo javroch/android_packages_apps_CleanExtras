@@ -78,6 +78,7 @@ public class CleanSettingsActivity extends PreferenceActivity
     private static final String LAUNCHER_SCREEN_COUNT_KEY = Settings.System.LAUNCHER_SCREEN_COUNT;
     private static final int LAUNCHER_SCREEN_COUNT_DEFAULT = 5;
     private static final String LAUNCHER_SCREEN_COUNT_PROPERTY = "ro.clean.launcher_screens";
+    private Object mSelectedScreenCountValue;
 	
 	private Dialog mOkDialog;
 	private boolean mOkClicked;	
@@ -287,7 +288,19 @@ public class CleanSettingsActivity extends PreferenceActivity
 			writeRebootOptions(newValue);
 			return true;
 		} else if (preference == mLauncherScreenCount) {
-			writeLauncherScreenOptions(newValue);
+            mSelectedScreenCountValue = newValue;
+            mOkClicked = false;
+            dismissDialog();
+            mOkDialog = new AlertDialog.Builder(this).setMessage(
+                getResources().getString(R.string.launcher_screen_count_warning_message))
+                .setTitle(R.string.launcher_screen_count_warning_title)
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .setPositiveButton(android.R.string.yes, this)
+                .setNegativeButton(android.R.string.no, this)
+                .show();
+
+            mCurrentDialog = LAUNCHER_SCREEN_COUNT_KEY;
+            mOkDialog.setOnDismissListener(this);
 			return true;
 		}
 		
@@ -359,7 +372,9 @@ public class CleanSettingsActivity extends PreferenceActivity
 		if (!mOkClicked) {
 			if (mCurrentDialog.equals(ROOT_ACCESS_KEY)) {
 				writeRootOptions("0");
-			}
+			} else if (mCurrentDialog.equals(LAUNCHER_SCREEN_COUNT_KEY)) {
+                updateLauncherScreenOptions();                
+            }
 		}
 	}
 
@@ -370,13 +385,17 @@ public class CleanSettingsActivity extends PreferenceActivity
 
 			if (mCurrentDialog.equals(ROOT_ACCESS_KEY)) {
 				writeRootOptions(mSelectedRootValue);
-			}
+			} else if (mCurrentDialog.equals(LAUNCHER_SCREEN_COUNT_KEY)) {
+                writeLauncherScreenOptions(mSelectedScreenCountValue);
+            }
 		} else {
 			mOkClicked = false;
 
 			if (mCurrentDialog.equals(ROOT_ACCESS_KEY)) {
 				writeRootOptions("0");
-			}
+			} else if (mCurrentDialog.equals(LAUNCHER_SCREEN_COUNT_KEY)) {
+                updateLauncherScreenOptions();
+            }
 		}
 	}
 	

@@ -68,16 +68,24 @@
     
     <!--  Arrays for the launcher screen count capability -->
     <string-array name="launcher_screen_count_entries">
+        <item>2</item>
         <item>3</item>
+        <item>4</item>
         <item>5</item>
+        <item>6</item>
         <item>7</item>
+        <item>8</item>
         <item>9</item>
     </string-array>
     
     <string-array name="launcher_screen_count_summaries">
+        <item>@string/launcher_screen_count_summary_2</item>
         <item>@string/launcher_screen_count_summary_3</item>
+        <item>@string/launcher_screen_count_summary_4</item>
         <item>@string/launcher_screen_count_summary_5</item>
+        <item>@string/launcher_screen_count_summary_6</item>
         <item>@string/launcher_screen_count_summary_7</item>
+        <item>@string/launcher_screen_count_summary_8</item>
         <item>@string/launcher_screen_count_summary_9</item>
     </string-array>
         
